@@ -1,0 +1,54 @@
+name: Bazel CI
+
+on:
+  push:
+    branches: [master, "*bazel*"]
+    paths:
+      - "BUILD.bazel"
+      - "MODULE.bazel"
+      - ".github/workflows/bazel.yml"
+  pull_request:
+    branches: [master, "*bazel*"]
+    paths:
+      - "BUILD.bazel"
+      - "MODULE.bazel"
+      - ".github/workflows/bazel.yml"
+
+concurrency:
+  group: ${{ github.ref }}-bazel
+  cancel-in-progress: true
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-14
+            name: macOS (arm64)
+            targets: "//:lvgl //:lvgl_demo"
+          - os: ubuntu-24.04
+            name: Linux (x86_64)
+            targets: "//:lvgl //:lvgl_demo"
+          - os: windows-2022
+            name: Windows (x86_64)
+            targets: "//:lvgl"
+
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bazel
+        uses: bazel-contrib/setup-bazel@0.15.0
+        with:
+          bazelisk-cache: true
+          disk-cache: ${{ github.workflow }}
+          repository-cache: true
+
+      - name: Build
+        run: bazel build ${{ matrix.targets }}
+
+      - name: Query targets
+        run: bazel query //:*
