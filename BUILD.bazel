@@ -408,6 +408,8 @@ _LVGL_SRCS_EXCLUDE = [
     # ThorVG C++ sources — compiled separately in :lvgl_thorvg (requires C++14)
     "src/libs/thorvg/**/*.cpp",
     "src/debugging/vg_lite_tvg/*.cpp",
+    # ARM Helium (MVE) assembly — only for ARM Cortex-M, not for x86/ARM desktop
+    "src/draw/sw/blend/helium/*.S",
 ]
 
 # Note: src/libs/thorvg/**/*.cpp and src/debugging/vg_lite_tvg/*.cpp are compiled
